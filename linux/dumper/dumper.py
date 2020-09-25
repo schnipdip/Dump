@@ -3,13 +3,13 @@
 #from watchdog.observers import Observeir
 import configparser
 import subprocess
-import usb.core
-import usb.util
+import usb
 import logger
 import pyudev
 import sys
 import os
 import re
+#import yaml
 
 def get_configParser():
     config = configparser.ConfigParser()
@@ -24,33 +24,40 @@ def get_configParser():
 def find_backup():
     #Find all USB Devices
     connected_usb = usb.core.find(find_all=True)
-
+    
     #Check if no devices are connected
     if connected_usb == None:
         raise ValueError('No Devices Found.')
 
     #Loop through connected devices and append to array
-    device_list = []
+    device_list = {}
 
     for device in connected_usb:
+        #print (device)
         usb_device = usb.util.get_string(device, device.iManufacturer)
-        
-        device_list.append(usb_device)
+        usb_device_vendorID = hex(device.idVendor)
 
+     #   print(usb_device_vendorID)
+
+        device_list[usb_device] = usb_device_vendorID
+
+    #print(device_list)
     return device_list
     
 def verify_usb(usb_device_list, backup_device, input_device):
+
     for usb in usb_device_list:
+    #    print(usb_device_list[usb])
         if backup_device in usb.lower():
             print('found the backup device')
-            backup_usb_device = usb
+            backup_usb_device = usb_device_list[usb]
         if input_device.lower() in usb.lower():
             print('found input device')
-            input_usb_device = usb
-    else:
-        raise ValueError('The attached USB devices to not match the devices in ../settings.ini')
+            input_usb_device = usb_device_list[usb]
 
+    #returns hex(vendorID) of connected USB 
     return backup_usb_device, input_usb_device
+
 
 if __name__ == "__main__":
     #get backupdevice and input device
@@ -62,3 +69,5 @@ if __name__ == "__main__":
     #validate if backup and input devices are connected
     backup_usb_device, input_usb_device = verify_usb(usb_device, backup_device, input_device)
 
+
+    
