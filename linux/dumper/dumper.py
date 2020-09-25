@@ -1,19 +1,64 @@
 #!/usr/bin python3
 
-# need to locate back up storage - monitor state
-# need to locate input storage - monitor state
-# when both exist, back up input storage to back up storage
+#from watchdog.observers import Observeir
+import configparser
+import subprocess
+import usb.core
+import usb.util
+import logger
+import pyudev
+import sys
+import os
+import re
 
-class backupStorage():
-    def find_backup(self):
-        return True
+def get_configParser():
+    config = configparser.ConfigParser()
+    config.read('../settings.ini')
     
-    def monitor_backup(self):
-        return True
+    backup_device = config['settings']['backup_device_name']
+    input_device = config['settings']['input_device_name']
 
-class inputStorage():   
-    def find_input(self):
-        return True
+    return backup_device, input_device
+
+
+def find_backup():
+    #Find all USB Devices
+    connected_usb = usb.core.find(find_all=True)
+
+    #Check if no devices are connected
+    if connected_usb == None:
+        raise ValueError('No Devices Found.')
+
+    #Loop through connected devices and append to array
+    device_list = []
+
+    for device in connected_usb:
+        usb_device = usb.util.get_string(device, device.iManufacturer)
+        
+        device_list.append(usb_device)
+
+    return device_list
     
-    def monitor_input(self):
-        return True
+def verify_usb(usb_device_list, backup_device, input_device):
+    print(backup_device, input_device)
+
+    #backup_device = 'virtualbox'
+    for usb in usb_device_list:
+        print(usb)
+        if backup_device in usb.lower():
+            print('found the backup device')
+            backup_usb_device = usb
+        if input_device.lower() in usb.lower():
+            print('found input device')
+            input_usb_device = usb
+
+if __name__ == "__main__":
+    #get backupdevice and input device
+    backup_device, input_device = get_configParser()
+    
+    #get connected usb devices
+    usb_device = find_backup()
+    
+    #validate if backup and input devices are connected
+    verify_usb(usb_device, backup_device, input_device)
+
