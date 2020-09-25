@@ -20,7 +20,6 @@ def get_configParser():
 
     return backup_device, input_device
 
-
 def find_backup():
     #Find all USB Devices
     connected_usb = usb.core.find(find_all=True)
@@ -58,6 +57,15 @@ def verify_usb(usb_device_list, backup_device, input_device):
     #returns hex(vendorID) of connected USB 
     return backup_usb_device, input_usb_device
 
+def make_udev_rules(backup_vendorID, input_vendorID):
+    udev_file = open('/etc/udev/rules.d/10.autobackup.rules', 'w+')
+    
+    write_str = """SUBSYSTEM="block", ACTION="add", ATTRS{idVendor}==""" + '''"''' + backup_vendorID + '''"''' +""" SYMLINK+="external%n" RUN+="/bin/autobackup.sh" """
+
+    udev_file.write(str(write_str))
+
+    udev_file.close()
+
 
 if __name__ == "__main__":
     #get backupdevice and input device
@@ -69,5 +77,6 @@ if __name__ == "__main__":
     #validate if backup and input devices are connected
     backup_usb_device, input_usb_device = verify_usb(usb_device, backup_device, input_device)
 
-
+    #create udev structure
+    make_udev_rules(backup_usb_device, input_usb_device)
     
