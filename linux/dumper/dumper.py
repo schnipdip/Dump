@@ -47,6 +47,8 @@ def verify_usb(usb_device_list, backup_device, input_device):
         if input_device.lower() in usb.lower():
             print('found input device')
             input_usb_device = usb
+    else:
+        raise ValueError('The attached USB devices to not match the devices in ../settings.ini')
 
     return backup_usb_device, input_usb_device
 
