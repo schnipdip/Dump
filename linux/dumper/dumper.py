@@ -40,17 +40,15 @@ def find_backup():
     return device_list
     
 def verify_usb(usb_device_list, backup_device, input_device):
-    print(backup_device, input_device)
-
-    #backup_device = 'virtualbox'
     for usb in usb_device_list:
-        print(usb)
         if backup_device in usb.lower():
             print('found the backup device')
             backup_usb_device = usb
         if input_device.lower() in usb.lower():
             print('found input device')
             input_usb_device = usb
+
+    return backup_usb_device, input_usb_device
 
 if __name__ == "__main__":
     #get backupdevice and input device
@@ -60,5 +58,5 @@ if __name__ == "__main__":
     usb_device = find_backup()
     
     #validate if backup and input devices are connected
-    verify_usb(usb_device, backup_device, input_device)
+    backup_usb_device, input_usb_device = verify_usb(usb_device, backup_device, input_device)
 
