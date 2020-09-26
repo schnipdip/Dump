@@ -21,8 +21,9 @@ def get_configParser():
     dev_input_loc = config['settings']['dev_input_loc']
     mnt_backup_loc = config['settings']['mnt_backup_loc']
     mnt_input_loc = config['settings']['mnt_input_loc']
+    dumper_loc = config['settings']['dumper_loc']
 
-    return backup_device, input_device, dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc
+    return backup_device, input_device, dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, dumper_loc
 
 def find_backup():
     #Find all USB Devices
@@ -62,10 +63,10 @@ def verify_usb(usb_device_list, backup_device, input_device):
     print(backup_usb_device)
     return backup_usb_device, input_usb_device
 
-def make_udev_rules(backup_vendorID, input_vendorID):
+def make_udev_rules(backup_vendorID, input_vendorID, dumper_loc):
     udev_file = open('/etc/udev/rules.d/10.autobackup.rules', 'w+')
     
-    write_str = """SUBSYSTEM="block", ACTION="add", ATTRS{idVendor}==""" + '''"''' + backup_vendorID + '''"''' +""" SYMLINK+="external%n" RUN+="/bin/autobackup.sh" """
+    write_str = """SUBSYSTEM="block", ACTION="add", ATTRS{idVendor}==""" + '''"''' + backup_vendorID + '''"''' +""" SYMLINK+="external%n" RUN+="/bin/python3 " """ + dumper_loc
 
     udev_file.write(str(write_str))
 
@@ -82,6 +83,7 @@ def mount_usb(dbl, dil, mbl, mil, backup_name, input_name):
         makedir_backup = ('mkdir ' + mbl + backup_name)
         os.system(makedir_backup)
 
+    if os.path.exists(check_path_backup):
         #make mount point for backup usb
         backup_command = ('sudo mount ' + dbl + ' ' + mbl + backup_name)
         print(backup_command)
@@ -94,28 +96,25 @@ def mount_usb(dbl, dil, mbl, mil, backup_name, input_name):
         makedir_input = ('mkdir ' + mil + input_name)
         os.system(makedir_input)
 
+    if os.path.exists(check_path_input):
         #make mount point for input usb
         input_command = ('sudo mount ' + dil + ' ' + mil + input_name)
         print(input_command)
         os.system(input_command)
 
-def make_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_name, input_name):
-    backup_file = open('/bin/autobackup.sh', 'w+')
-    write_str = '''#!/usr/bin/bash ''' + '\n' + '''
-INPUT_SOURCE=''' + mnt_input_loc + input_name + '\n' + '''
-INPUT_DEVICE=''' + dev_input_loc + '\n' + '''
-BACKUP_SOURCE=''' + mnt_backup_loc + backup_name + '\n' + '''
-BACKUP_DEVICE=''' + dev_backup_loc + '\n' + '''
+def run_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_name, input_name):
+    INPUT_SOURCE = (mnt_input_loc + input_name)
+    INPUT_DEVICE = (dev_input_loc)
+    BACKUP_SOURCE = (mnt_backup_loc + backup_name)
+    BACKUP_DEVICE = (dev_backup_loc)
 
-#Run Differential backup
-/usr/bin/rsync -auz "$BACKUP_SOURCE" "$INPUT_SOURCE" && /bin/umount "$INPUT_DEVICE" && /bin/umount "$BACKUP_DEVICE"''' + '\n' + '''
-exit
-    '''
+    command = ('''/usr/bin/rsync -auz '{0}' '{1}' && /bin/umount '{2}' && /bin/umount '{3}' '''.format(BACKUP_SOURCE, INPUT_SOURCE, INPUT_DEVICE, BACKUP_DEVICE))
 
-    print(write_str)
+    os.system(command)
+
 if __name__ == "__main__":
     #get backupdevice and input device configuration settings
-    backup_device, input_device, dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc = get_configParser()
+    backup_device, input_device, dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, dumper_loc = get_configParser()
     
     #get connected usb devices
     usb_device = find_backup()
@@ -124,11 +123,11 @@ if __name__ == "__main__":
     backup_usb_device, input_usb_device = verify_usb(usb_device, backup_device, input_device)
 
     #create udev structure
-    make_udev_rules(backup_usb_device, input_usb_device)
+    make_udev_rules(backup_usb_device, input_usb_device, dumper_loc)
     
     #mount USB
     mount_usb(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_device, input_device)
 
-    #make autobackup.sh if it doesn't exist
-    make_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_device, input_device)
-    
+    #run backup
+    run_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_device, input_device)
+
