@@ -17,8 +17,12 @@ def get_configParser():
     
     backup_device = config['settings']['backup_device_name']
     input_device = config['settings']['input_device_name']
+    dev_backup_loc = config['settings']['dev_backup_loc']
+    dev_input_loc = config['settings']['dev_input_loc']
+    mnt_backup_loc = config['settings']['mnt_backup_loc']
+    mnt_input_loc = config['settings']['mnt_input_loc']
 
-    return backup_device, input_device
+    return backup_device, input_device, dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc
 
 def find_backup():
     #Find all USB Devices
@@ -55,6 +59,7 @@ def verify_usb(usb_device_list, backup_device, input_device):
             input_usb_device = usb_device_list[usb]
 
     #returns hex(vendorID) of connected USB 
+    print(backup_usb_device)
     return backup_usb_device, input_usb_device
 
 def make_udev_rules(backup_vendorID, input_vendorID):
@@ -66,10 +71,51 @@ def make_udev_rules(backup_vendorID, input_vendorID):
 
     udev_file.close()
 
+def mount_usb(dbl, dil, mbl, mil, backup_name, input_name):
+    check_path_backup = (mbl + backup_name)
+    check_path_input = (mil + input_name)
 
+    if os.path.exists(check_path_backup):
+        pass
+    else:
+        #make dir for mount point
+        makedir_backup = ('mkdir ' + mbl + backup_name)
+        os.system(makedir_backup)
+
+        #make mount point for backup usb
+        backup_command = ('sudo mount ' + dbl + ' ' + mbl + backup_name)
+        print(backup_command)
+        os.system(backup_command)
+    
+    if os.path.exists(check_path_input):
+        pass
+    else:
+        #make dir for mount point
+        makedir_input = ('mkdir ' + mil + input_name)
+        os.system(makedir_input)
+
+        #make mount point for input usb
+        input_command = ('sudo mount ' + dil + ' ' + mil + input_name)
+        print(input_command)
+        os.system(input_command)
+
+def make_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_name, input_name):
+    backup_file = open('/bin/autobackup.sh', 'w+')
+    write_str = '''#!/usr/bin/bash ''' + '\n' + '''
+INPUT_SOURCE=''' + mnt_input_loc + input_name + '\n' + '''
+INPUT_DEVICE=''' + dev_input_loc + '\n' + '''
+BACKUP_SOURCE=''' + mnt_backup_loc + backup_name + '\n' + '''
+BACKUP_DEVICE=''' + dev_backup_loc + '\n' + '''
+
+#Run Differential backup
+/usr/bin/rsync -auz "$BACKUP_SOURCE" "$INPUT_SOURCE" && /bin/umount "$INPUT_DEVICE" && /bin/umount "$BACKUP_DEVICE"''' + '\n' + '''
+exit
+    '''
+
+    print(write_str)
 if __name__ == "__main__":
-    #get backupdevice and input device
-    backup_device, input_device = get_configParser()
+    #get backupdevice and input device configuration settings
+    backup_device, input_device, dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc = get_configParser()
     
     #get connected usb devices
     usb_device = find_backup()
@@ -79,4 +125,10 @@ if __name__ == "__main__":
 
     #create udev structure
     make_udev_rules(backup_usb_device, input_usb_device)
+    
+    #mount USB
+    mount_usb(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_device, input_device)
+
+    #make autobackup.sh if it doesn't exist
+    make_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_device, input_device)
     
