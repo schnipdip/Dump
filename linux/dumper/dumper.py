@@ -1,6 +1,5 @@
 #!/usr/bin python3
 
-#from watchdog.observers import Observeir
 import configparser
 import subprocess
 import usb
@@ -9,7 +8,6 @@ import pyudev
 import sys
 import os
 import re
-#import yaml
 
 def get_configParser():
     config = configparser.ConfigParser()
@@ -22,6 +20,7 @@ def get_configParser():
     mnt_backup_loc = config['settings']['mnt_backup_loc']
     mnt_input_loc = config['settings']['mnt_input_loc']
     dumper_loc = config['settings']['dumper_loc']
+
 
     return backup_device, input_device, dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, dumper_loc
 
@@ -37,8 +36,8 @@ def find_backup():
     device_list = {}
 
     for device in connected_usb:
-        #print (device)
         usb_device = usb.util.get_string(device, device.iManufacturer)
+        usb_device = str(usb_device)
         usb_device_vendorID = hex(device.idVendor)
 
         device_list[usb_device] = usb_device_vendorID
@@ -46,7 +45,6 @@ def find_backup():
     return device_list
     
 def verify_usb(usb_device_list, backup_device, input_device):
-
     for usb in usb_device_list:
     #    print(usb_device_list[usb])
         if backup_device in usb.lower():
@@ -104,18 +102,19 @@ def run_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc,
     BACKUP_SOURCE = (mnt_backup_loc + 'backup')
     BACKUP_DEVICE = (dev_backup_loc)
     
-    command = ('''/usr/bin/rsync -a {0} {1} ''').format(INPUT_SOURCE, BACKUP_SOURCE)
+    command = ('''rsync -a {0} {1} ''').format(INPUT_SOURCE, BACKUP_SOURCE)
 
     result = subprocess.run(command, shell=True)
     
     print (result)
 
 def unmount_drives():
-    print('unmounting drives')
-    command = ('''/usr/bin/umount /mnt/*''')
+    print('unmounting drives...')
+    command = ('''umount /mnt/*''')
 
     subprocess.run(command, shell=True)
 
+    print('Safe to remove drives')
 
 
 if __name__ == "__main__":
