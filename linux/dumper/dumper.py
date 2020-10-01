@@ -161,4 +161,4 @@ if __name__ == "__main__":
     run_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_device, input_device)
 
     #unmount 
-    #unmount_drives()
+    unmount_drives()
