@@ -1,0 +1,10 @@
+[Unit]
+Description=Dumper Backup
+After=mnt-source.mount
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/sudo /usr/bin/python3 /home/pi/dump/linux/dumper/dumper.py
+
+[Install]
+WantedBy=multi-user.target

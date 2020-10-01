@@ -11,7 +11,7 @@ import re
 
 def get_configParser():
     config = configparser.ConfigParser()
-    config.read('../settings.ini')
+    config.read('/home/pi/dump/linux/settings.ini')
     
     backup_device = config['settings']['backup_device_name']
     input_device = config['settings']['input_device_name']
@@ -39,33 +39,57 @@ def find_backup():
         usb_device = usb.util.get_string(device, device.iManufacturer)
         usb_device = str(usb_device)
         usb_device_vendorID = hex(device.idVendor)
+        usb_device_productID = hex(device.idProduct)
+        device_list[usb_device] = usb_device_vendorID, usb_device_productID
 
-        device_list[usb_device] = usb_device_vendorID
-
+    print (device_list)
     return device_list
     
 def verify_usb(usb_device_list, backup_device, input_device):
-    for usb in usb_device_list:
-    #    print(usb_device_list[usb])
-        if backup_device in usb.lower():
-            print('found the backup device')
-            backup_usb_device = usb_device_list[usb]
-        if input_device.lower() in usb.lower():
-            print('found input device')
-            input_usb_device = usb_device_list[usb]
-
-    #returns hex(vendorID) of connected USB 
-    return backup_usb_device, input_usb_device
-
-def make_udev_rules(backup_vendorID, input_vendorID, dumper_loc):
-    udev_file = open('/etc/udev/rules.d/10.autobackup.rules', 'w+')
+    backup_device = backup_device.lower()
+    input_device = input_device.lower()
     
-    write_str = """SUBSYSTEM="block", ACTION="add", ATTRS{idVendor}==""" + '''"''' + backup_vendorID + '''"''' +""" SYMLINK+="external%n" RUN+="/bin/python3 """ + dumper_loc + '''"''' 
+    usb_list = {}
+    for device, value in usb_device_list.items():
+        print(usb_device_list[device][1])
+        if backup_device in device.lower():
+            print('found the backup device')
+            backup_usb_device_vendor = usb_device_list[device][0]
+            backup_usb_device_product = usb_device_list[device][1]
+            #usb_list[device] = backup_usb_device_product
+            
+        if input_device in device.lower():
+            print('found the input device')
+            input_usb_device_vendor = usb_device_list[device][0]
+            input_usb_device_product = usb_device_list[device][1]
+    
+    return backup_usb_device_vendor, input_usb_device_vendor, backup_usb_device_product, input_usb_device_product
 
-    udev_file.write(str(write_str))
+def make_udev_rules(backup_vendorID, input_vendorID, backup_productID, input_productID, dumper_loc):
+    udev_file_source = open('/etc/udev/rules.d/10.autobackup_source.rules', 'w+')
+    udev_file_backup = open('/etc/udev/rules.d/11.autobackup_backup.rules', 'w+')
+    
+    #strip first two characters of hex
+    backup_vendorID = backup_vendorID.strip('0x')
+    backup_productID = backup_productID.strip('0x')
+    input_vendorID = input_vendorID.strip('0x')
+    input_productID = input_productID.strip('0x')
+    
+    write_str_source = """ACTION="add", ATTRS{idVendor}=""" + '''"''' + input_vendorID + '''", ATTRS{idProduct}="''' + input_productID + '''",''' + """ RUN+="/usr/bin/sudo /usr/bin/python3 """ + dumper_loc + '''"'''
 
-    udev_file.close()
+    udev_file_source.write(str(write_str_source))
 
+    udev_file_source.close()
+
+    write_str_backup = """ACTION="add", ATTRS{idVendor}=""" + '''"''' + backup_vendorID + '''", ATTRS{idProduct}="''' + backup_productID + '''",''' + """ RUN+="/usr/bin/sudo /usr/bin/python3 """ + dumper_loc + '''"'''
+
+    udev_file_backup.write(str(write_str_backup))
+
+    udev_file_backup.close()
+
+    #reload udev rules
+    subprocess.run('udevadm control --reload', shell=True)
+    
 def mount_usb(dbl, dil, mbl, mil, backup_name, input_name):
     check_path_backup = (mbl + 'backup')
     check_path_input = (mil + 'source')
@@ -125,10 +149,10 @@ if __name__ == "__main__":
     usb_device = find_backup()
     
     #validate if backup and input devices are connected
-    backup_usb_device, input_usb_device = verify_usb(usb_device, backup_device, input_device)
+    backup_usb_device_vendor, input_usb_device_vendor, backup_usb_device_product, input_usb_device_product = verify_usb(usb_device, backup_device, input_device)
 
     #create udev structure
-    make_udev_rules(backup_usb_device, input_usb_device, dumper_loc)
+    make_udev_rules(backup_usb_device_vendor, input_usb_device_vendor, backup_usb_device_product, input_usb_device_product, dumper_loc)
     
     #mount USB
     mount_usb(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_device, input_device)
@@ -137,4 +161,4 @@ if __name__ == "__main__":
     run_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_device, input_device)
 
     #unmount 
-    unmount_drives()
+    #unmount_drives()

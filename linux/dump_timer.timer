@@ -1,0 +1,9 @@
+[Unit]
+Description=Dump Backup Timer
+
+[Timer]
+Unit=dump_service.service
+OnUnitActiveSec=1s
+
+[Install]
+WantedBy=timers.target
