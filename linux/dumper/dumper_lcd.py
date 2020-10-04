@@ -215,7 +215,7 @@ if __name__ == "__main__":
                 mount_usb(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_device, input_device)
             
                 lcd.clear()
-                lcd.message = "Press RB to\nbeing backup"
+                lcd.message = "Press RB to\nbegin backup"
                 #device_add = False
         
             if lcd.right_button:
