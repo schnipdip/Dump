@@ -175,11 +175,15 @@ def unmount_drives():
     lcd.clear()
     lcd.message = "Unmounting USBs"
     time.sleep(0.5)
-
-    command = ('''umount /mnt/*''')
-
-    subprocess.run(command, shell=True)
     
+    #unmount drives
+    unmount_command = ('''umount /mnt/*''')
+    subprocess.run(unmount_command, shell=True)
+    
+    #clean up /mnt/* paths
+    cleanup_command = ('''rm -r /mnt/*''')
+    subprocess.run(cleanup_command, shell=True)
+
     lcd.clear()
     lcd.message = "Safe to \nremove USBs"
     time.sleep(5)
