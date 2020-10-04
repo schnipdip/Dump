@@ -274,9 +274,6 @@ if __name__ == "__main__":
                 verify_backup_loc = mnt_backup_loc + 'backup'
                 verify_source_loc = mnt_input_loc + 'source'
             
-                print(verify_backup_loc)
-                print(verify_source_loc)
-
                 if os.path.exists(verify_backup_loc) and os.path.exists(verify_source_loc):
                     #rsync backup -> right_button
                     run_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_device, input_device)
