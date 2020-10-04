@@ -13,24 +13,14 @@ import sys
 import os
 import re
 
-# 1. User plugs in USB -> USB Devices need to be validated
-# 2. User selects USB Data source, other device is the backup device
-# 3. Get USB Information:(idProduct, idManufacturer) for both devices
-# 4. Mount USB's to /mnt/source and /mnt/backup
-# 5. Present user with message backup is occuring, do not unplug devices
-# 6. Perform RSYNC Backup
-# 7. Once backup is completed, unmount disks
-# 8. Present user with message it's safe to remove drives
-
-
 def init_lcd():
     '''
-        Params: lcd_columns - number of culumns the LCD Screen has
-                lcd_rows    - number of rwos the LCD Screen has
+        Params: lcd_columns - number of culumns the LCD Screen has (int)
+                lcd_rows    - number of rwos the LCD Screen has (int)
                 i2c         - calling i2c program
                 lcd         - setting lcd screen
-        return: lcd 
-
+        
+        Returns: lcd 
     '''
     
     lcd_columns = 16
@@ -42,6 +32,18 @@ def init_lcd():
 
 
 def get_configparser():
+    '''
+        Params: config          - config init
+                backup_device   - backup device name (str)
+                input_device    - input device name (str)
+                dev_back_loc    - location of /dev/{backup} (str)
+                dev_input_loc   - location of /dev/{input} (Str)
+                mnt_backup_loc  - location of backup mount (str)
+                mnt_input_loc   - location of input mount (str)
+                dumper_loc      - location of dumper script (str)
+
+        Returns: backup_device, input_device, dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, dumper_loc
+    '''
     config = configparser.ConfigParser()
     config.read('/home/pi/dump/linux/settings.ini')
 
@@ -56,6 +58,16 @@ def get_configparser():
     return backup_device, input_device, dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, dumper_loc
 
 def check_usb():
+    '''
+        Params: connected_usb           - list of system usb devices (list)
+                usb_device              - finds usb device name (str)
+                usb_device_vendorID     - usb device vendor id (hex)
+                usb_device_productID    - usb device product id (hex)
+                device_list             - list of devices and their attributes (list)
+       
+       Returns: device_list
+    '''
+
     #LCD MESSAGE
     lcd.clear()
     lcd.message = "Detecting USBs"
@@ -87,6 +99,18 @@ def check_usb():
     return device_list
 
 def verify_usb(usb_device_list, backup_device, input_device):
+    '''
+        Params: usb_device_list             - list of usb devices and their attributes (list)
+                backup_device               - backup device (str)
+                input_device                - input device (str)
+                backup_usb_device_vendor    - vendor id for backup device (str)
+                backup_usb_device_product   - product id for backup device (str)
+                input_usb_device_vendor     - vendor id for input device (str)
+                input_usb_device_product    - product id for input device (str)
+
+        Returns: backup_usb_device_vendor, input_usb_device_vendor, backup_usb_device_product, input_usb_device_product
+    '''
+
     backup_device = backup_device.lower()
     input_device = input_device.lower()
     
@@ -96,13 +120,11 @@ def verify_usb(usb_device_list, backup_device, input_device):
 
     usb_list = {}
     for device, value in usb_device_list.items():
-        print(usb_device_list[device][1])
         if backup_device in device.lower():
             print('found the backup device')
             backup_usb_device_vendor = usb_device_list[device][0]
             backup_usb_device_product = usb_device_list[device][1]
-            #usb_list[device] = backup_usb_device_product
-
+    
         if input_device in device.lower():
             print('found the input device')
             input_usb_device_vendor = usb_device_list[device][0]
@@ -112,6 +134,17 @@ def verify_usb(usb_device_list, backup_device, input_device):
 
 
 def mount_usb(dbl, dil, mbl, mil, backup_name, input_name):
+    '''
+        Params: check_path_backup   - mount location of backup device (str)
+                check_path_input    - mount location of input device (str)
+                makedir_backup      - makedir location of backup location if does not exist (str)
+                makedir_input       - makedir location of input location if does not exist (str)
+                backup_command      - system mount command to mount backup (str)
+                input_command       - system mount command to mount input (str)
+
+        Returns: None
+    '''
+
     check_path_backup = (mbl + 'backup')
     check_path_input = (mil + 'source')
     
@@ -150,9 +183,24 @@ def mount_usb(dbl, dil, mbl, mil, backup_name, input_name):
         lcd.clear()
         lcd.message = "Source Mounted"
         time.sleep(0.5)
-    
 
 def run_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_name, input_name):
+    '''
+        Params: dev_backup_loc      - /dev/ location of backup device (str)
+                dev_input_loc       - /dev/ location of input device (str)
+                mnt_backup_loc      - /mnt/ location of backup device (str)
+                mnt_input_loc       - /mnt/ location of input device (str)
+                backup_name         - backup directory name (str)
+                input_name          - source directory name (str)
+                INPUT_SOURCE        - mount location input path (str)
+                INPUT_DEVICE        - device location path for input (str) 
+                BACKUP_SOURCE       - mount location backup path (str)
+                BACKUP_DEVICE       - device location path for backup (str)
+                command             - system rsync command differential backup
+
+        Returns: None
+    '''
+    
     lcd.clear()
     lcd.message = "Backing up data"
     time.sleep(0.5)
@@ -169,9 +217,14 @@ def run_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc,
 
     result = subprocess.run(command, shell=True)
 
-    print (result)
-
 def unmount_drives():
+    '''
+        Params: unmount_command - system command to unmount devices (str)
+                cleanup_command - system command to rmeove mount devices location (str)
+
+        Returns: None
+    '''
+
     lcd.clear()
     lcd.message = "Unmounting USBs"
     time.sleep(0.5)
@@ -204,7 +257,6 @@ if __name__ == "__main__":
         while device_add == True:
             #perform USB check
             if lcd.select_button:
-                print('select')
                 #get connected usb devices
                 usb_device = check_usb()
 
@@ -216,7 +268,6 @@ if __name__ == "__main__":
             
                 lcd.clear()
                 lcd.message = "Press RB to\nbegin backup"
-                #device_add = False
         
             if lcd.right_button:
                 #check if /mnt/backup and /mnt/source exist
