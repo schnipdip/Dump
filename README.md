@@ -42,3 +42,6 @@ The settings file is comprised of a single `[settings]` field. Under this field 
 | mnt_backup_loc | The mount location of where the backup device from `/dev/` will be mounted to. Default is `/mnt/`. A folder will be created called `/mnt/backup` to mound the backup device to. |
 | mnt_input_loc | The mount location of where the source device from `/dev/` will be mounted to. Default is `/mnt/`. A folder will be created called `/mnt/source` to mound the backup device to. |
 
+## Troubleshooting
+
+1. If you aren't pulling the git repo into `/home/pi/` then you need to open the `dumper_lcd.py` and/or `dumper_no_lcd.py` and change the source location for the `settings.ini` file. 
