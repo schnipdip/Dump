@@ -34,7 +34,7 @@ The settings file is comprised of a single `[settings]` field. Under this field 
 
 |Settings|  Information|
 |--|--|
-|dumper_loc| The is for the `sh isntall.sh auto` setting. The location of dumper_no_lcd.py|
+|dumper_loc| This for the `sh isntall.sh auto` setting. The location of dumper_no_lcd.py|
 |backup_device_name| Generic name of the backup device. Can be found using `lsusb`. Can either add the full name or a portion of the known name. Example, `Sandisk`|
 |input_device_name| Generic name of the source device. Can be found using `lsusb`. Can either add the full name or a portion of the known name. Example, `Lexar` |
 | dev_backup_loc | The `/dev/` point for the backup device. Can be found using `lsblk` and some digging. Example, `/dev/disk/by-uuid/BA5C-B93C` |
