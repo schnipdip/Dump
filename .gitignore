@@ -1,0 +1,5 @@
+# ignore the demos directory
+demo/
+
+# ignore the whitesource tool
+.whitesource
