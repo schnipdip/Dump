@@ -1,4 +1,4 @@
-![Dump Img](https://ibb.co/YNmD149) #  **Dump** 
+[![Blue-dump-truck-svg.png](https://i.postimg.cc/9fzQ4LyN/Blue-dump-truck-svg.png)](https://postimg.cc/d7PYpmH8) #  **Dump** 
 
 Auto back up images from a raspberry pi to a removable storage device automatically from an SD card.
 
@@ -39,4 +39,4 @@ The settings file is comprised of a single `[settings]` field. Under this field 
 | dev_input_loc | The `/dev/` point for the source device. Can be found using `lsblk` and some digging. Example, `/dev/disk/by-id/usb-Lexar_LRWM04U_201804030001-0\:0-part1` |
 | mnt_backup_loc | The mount location of where the backup device from `/dev/` will be mounted to. Default is `/mnt/`. A folder will be created called `/mnt/backup` to mound the backup device to. |
 | mnt_input_loc | The mount location of where the source device from `/dev/` will be mounted to. Default is `/mnt/`. A folder will be created called `/mnt/source` to mound the backup device to. |
-|  |  |
+
