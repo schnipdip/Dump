@@ -241,6 +241,29 @@ def unmount_drives():
     lcd.message = "Safe to \nremove USBs"
     time.sleep(5)
 
+def shutdown():
+    lcd.message = "Shutting down PI"
+    time.sleep(0.5)
+    lcd.display = False
+    
+    shutdown_command = ('''sudo shutdown -h now''')
+    os.system(shutdown_command)
+
+
+def restart():
+    lcd.message = "Restarting in:" 
+    time.sleep(0.5)
+
+    for i in range(3,-1,-1):
+        lcd.clear()
+        lcd.message = str(i)
+        time.sleep(1)
+        
+    lcd.clear()
+    lcd.message = "Rebooting..."
+
+    os.system('''sudo reboot -f''')
+
 if __name__ == "__main__":
     #init lcid screen
     lcd = init_lcd()
@@ -256,24 +279,16 @@ if __name__ == "__main__":
         
         device_add = True
         while device_add == True:
+            #shutdown RPI
             if lcd.down_button:
                 lcd.clear()
-                lcd.message = "Shutting down PI"
-                time.sleep(0.5)
-                lcd.display = False
-                shutdown_command = ('''sudo shutdown -h now''')
-                os.system(shutdown_command)
+                shutdown()
             
-            #if lcd.up_button:
-            #    lcd.clear()
-
-             #   for i in range(1,4):
-              #      lcd.message = i
-               #     print (i)
-                #    time.sleep(1)
-                    #lcd.clear()
-
-
+            #reboot RPI
+            if lcd.up_button:
+                lcd.clear()            
+                restart()
+                
             #perform USB check
             if lcd.select_button:
                 #get connected usb devices
