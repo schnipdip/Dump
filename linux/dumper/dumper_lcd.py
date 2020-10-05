@@ -251,10 +251,29 @@ if __name__ == "__main__":
     #message user to plug in devices
     # TODO: get message to scroll to the left without newline continuously
     while True:
+        lcd.clear()
         lcd.message = "Insert USB's\nPress Select"
-    
+        
         device_add = True
         while device_add == True:
+            if lcd.down_button:
+                lcd.clear()
+                lcd.message = "Shutting down PI"
+                time.sleep(0.5)
+                lcd.display = False
+                shutdown_command = ('''sudo shutdown -h now''')
+                os.system(shutdown_command)
+            
+            #if lcd.up_button:
+            #    lcd.clear()
+
+             #   for i in range(1,4):
+              #      lcd.message = i
+               #     print (i)
+                #    time.sleep(1)
+                    #lcd.clear()
+
+
             #perform USB check
             if lcd.select_button:
                 #get connected usb devices

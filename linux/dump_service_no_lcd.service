@@ -1,0 +1,11 @@
+[Unit]
+Description=Dumper Backup with no LCD
+After=mnt-source.mount
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/sudo /usr/bin/python3 /home/pi/dump/linux/dumper/dumper_no_lcd.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

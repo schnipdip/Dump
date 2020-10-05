@@ -2,8 +2,9 @@
 Description=Dump Backup Timer
 
 [Timer]
-Unit=dump_service.service
+Unit=dump_service_no_lcd.service
 OnUnitActiveSec=1s
+Restart=on-failure
 
 [Install]
 WantedBy=timers.target
