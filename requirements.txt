@@ -1,1 +1,4 @@
-
+adafruit-circuitpython-charlcd
+configparser
+pyudev
+pyusb
