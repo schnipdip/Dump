@@ -1,4 +1,4 @@
 adafruit-circuitpython-charlcd
-configparser
-pyudev
+configparser~=5.0.1
+pyudev~=0.22.0
 pyusb

@@ -99,7 +99,7 @@ def check_usb():
     return device_list
 
 def verify_usb(usb_device_list, backup_device, input_device):
-    '''
+    """
         Params: usb_device_list             - list of usb devices and their attributes (list)
                 backup_device               - backup device (str)
                 input_device                - input device (str)
@@ -109,7 +109,7 @@ def verify_usb(usb_device_list, backup_device, input_device):
                 input_usb_device_product    - product id for input device (str)
 
         Returns: backup_usb_device_vendor, input_usb_device_vendor, backup_usb_device_product, input_usb_device_product
-    '''
+    """
 
     backup_device = backup_device.lower()
     input_device = input_device.lower()
