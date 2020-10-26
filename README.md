@@ -45,3 +45,13 @@ The settings file is comprised of a single `[settings]` field. Under this field 
 ## Troubleshooting
 
 1. If you aren't pulling the git repo into `/home/pi/` then you need to open the `dumper_lcd.py` and/or `dumper_no_lcd.py` and change the source location for the `settings.ini` file. 
+
+
+## Contributors
+
+<table>
+  <tr>
+    <td align="center"><a href="https://github.com/schnipdip"><img src="https://avatars1.githubusercontent.com/u/23109762?s=460&u=1ab3d6ad58d06fcc1e4775c1afb501dbebf8d58f&v=4" width="100px;" alt=""/><br /><sub><b>Chris Herzog</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/j-freimuth"><img src="https://avatars1.githubusercontent.com/u/47719233?s=460&v=4" width="100px;" alt=""/><br /><sub><b>Joe Freimuth</b></sub></a><br /></td>
+  </tr>
+</table>
