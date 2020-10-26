@@ -72,7 +72,6 @@ def verify_usb(usb_device_list, backup_device, input_device):
             output.print('found the backup device', .5)
             backup_usb_device_vendor = usb_device_list[device][0]
             backup_usb_device_product = usb_device_list[device][1]
-            # usb_list[device] = backup_usb_device_product
 
         if input_device in device.lower():
             output.print('found the input device', .5)
@@ -112,29 +111,25 @@ def mount_usb(dbl, dil, mbl, mil, backup_name, input_name):
     check_path_backup = (mbl + 'backup')
     check_path_input = (mil + 'source')
 
-    if os.path.exists(check_path_backup):
-        pass
-    else:
+    if not os.path.exists(check_path_backup):
         # make dir for mount point
         makedir_backup = ('mkdir ' + mbl + 'backup')
         os.system(makedir_backup)
 
     if os.path.exists(check_path_backup):
         # make mount point for backup usb
-        backup_command = ('sudo mount -t auto ' + dbl + ' ' + mbl + 'backup')
-
+        backup_command = f"sudo mount /dev/disk/by-uuid/{dbl} {mbl}backup"
+        output.print(backup_command, .5)
         os.system(backup_command)
 
-    if os.path.exists(check_path_input):
-        pass
-    else:
+    if not os.path.exists(check_path_input):
         # make dir for mount point
         makedir_input = ('mkdir ' + mil + 'source')
         os.system(makedir_input)
 
     if os.path.exists(check_path_input):
         # make mount point for input usb
-        input_command = ('sudo mount -t auto ' + dil + ' ' + mil + 'source')
+        input_command = f"sudo mount /dev/disk/by-uuid/{dil} {mil}source"
         output.print(input_command, .5)
         os.system(input_command)
 

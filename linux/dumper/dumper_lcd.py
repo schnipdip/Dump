@@ -15,8 +15,8 @@ import re
 
 def init_lcd():
     '''
-        Params: lcd_columns - number of culumns the LCD Screen has (int)
-                lcd_rows    - number of rwos the LCD Screen has (int)
+        Params: lcd_columns - number of columns the LCD Screen has (int)
+                lcd_rows    - number of rows the LCD Screen has (int)
                 i2c         - calling i2c program
                 lcd         - setting lcd screen
         
@@ -302,23 +302,27 @@ if __name__ == "__main__":
             
                 lcd.clear()
                 lcd.message = "Press RB to\nbegin backup"
-        
-            if lcd.right_button:
-                #check if /mnt/backup and /mnt/source exist
-                verify_backup_loc = mnt_backup_loc + 'backup'
-                verify_source_loc = mnt_input_loc + 'source'
-            
-                if os.path.exists(verify_backup_loc) and os.path.exists(verify_source_loc):
-                    #rsync backup -> right_button
-                    run_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_device, input_device)
+                lcd.message = "Press LB to\ncancel"
 
-                    #unmount devices
-                    unmount_drives()
+                while (device_add == True):
+                    if lcd.right_button:
+                        #check if /mnt/backup and /mnt/source exist
+                        verify_backup_loc = mnt_backup_loc + 'backup'
+                        verify_source_loc = mnt_input_loc + 'source'
 
-                    device_add = False
-                else:
-                    lcd.clear()
-                    lcd.message = "Press Select to\nMount USBs"
-                    time.sleep(0.5)
-            
-            
+                        if os.path.exists(verify_backup_loc) and os.path.exists(verify_source_loc):
+                            #rsync backup -> right_button
+                            run_autobackup(dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, backup_device, input_device)
+
+                            #unmount devices
+                            unmount_drives()
+
+                            device_add = False
+                        else:
+                            lcd.clear()
+                            lcd.message = "Press Select to\nMount USBs"
+                            time.sleep(0.5)
+
+                    if lcd.left_button:
+                        break
+

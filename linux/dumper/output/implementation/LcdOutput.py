@@ -1,4 +1,3 @@
-import board
 import busio
 import adafruit_character_lcd.character_lcd_rgb_i2c as character_lcd
 from time import sleep
@@ -15,6 +14,7 @@ def init_lcd():
         Returns: lcd
     """
 
+    import board
     lcd_columns = 16
     lcd_rows = 2
     i2c = busio.I2C(board.SCL, board.SDA)
