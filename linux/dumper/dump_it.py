@@ -1,6 +1,6 @@
 #copy files from source to destination
 
-class dumpy:
+class backup:
     
     def locateSource(self, source):
         self.source = source
