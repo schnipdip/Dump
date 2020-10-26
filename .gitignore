@@ -1,5 +1,7 @@
 # ignore the demos directory
 demo/
+/venv
+.idea
 
 # ignore the whitesource tool
 .whitesource
