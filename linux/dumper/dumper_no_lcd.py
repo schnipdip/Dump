@@ -83,25 +83,22 @@ def verify_usb(usb_device_list, backup_device, input_device):
 
 def make_udev_rules(backup_vendorID, input_vendorID, backup_productID, input_productID, dumper_loc):
     udev_file_source = open('/etc/udev/rules.d/10.autobackup_source.rules', 'w+')
-    udev_file_backup = open('/etc/udev/rules.d/11.autobackup_backup.rules', 'w+')
+    with open('/etc/udev/rules.d/11.autobackup_backup.rules', 'w+') as udev_file_backup:
+        # strip first two characters of hex
+        backup_vendorId = backup_vendorID.strip('0x')
+        backup_productId = backup_productID.strip('0x')
+        input_vendorId = input_vendorID.strip('0x')
+        input_productId = input_productID.strip('0x')
 
-    # strip first two characters of hex
-    backup_vendorId = backup_vendorID.strip('0x')
-    backup_productId = backup_productID.strip('0x')
-    input_vendorId = input_vendorID.strip('0x')
-    input_productId = input_productID.strip('0x')
+        write_str_source = """ACTION="add", ATTRS{idVendor}=""" + '''"''' + input_vendorId + '''", ATTRS{idProduct}="''' + input_productId + '''",''' + """ RUN+="/usr/bin/sudo /usr/bin/python3 """ + dumper_loc + '''"'''
 
-    write_str_source = """ACTION="add", ATTRS{idVendor}=""" + '''"''' + input_vendorId + '''", ATTRS{idProduct}="''' + input_productId + '''",''' + """ RUN+="/usr/bin/sudo /usr/bin/python3 """ + dumper_loc + '''"'''
+        udev_file_source.write(str(write_str_source))
 
-    udev_file_source.write(str(write_str_source))
+        udev_file_source.close()
 
-    udev_file_source.close()
+        write_str_backup = """ACTION="add", ATTRS{idVendor}=""" + '''"''' + backup_vendorId + '''", ATTRS{idProduct}="''' + backup_productId + '''",''' + """ RUN+="/usr/bin/sudo /usr/bin/python3 """ + dumper_loc + '''"'''
 
-    write_str_backup = """ACTION="add", ATTRS{idVendor}=""" + '''"''' + backup_vendorId + '''", ATTRS{idProduct}="''' + backup_productId + '''",''' + """ RUN+="/usr/bin/sudo /usr/bin/python3 """ + dumper_loc + '''"'''
-
-    udev_file_backup.write(str(write_str_backup))
-
-    udev_file_backup.close()
+        udev_file_backup.write(str(write_str_backup))
 
     # reload udev rules
     subprocess.run('udevadm control --reload', shell=True)

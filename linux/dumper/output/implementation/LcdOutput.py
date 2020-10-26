@@ -18,9 +18,7 @@ def init_lcd():
     lcd_columns = 16
     lcd_rows = 2
     i2c = busio.I2C(board.SCL, board.SDA)
-    lcd = character_lcd.Character_LCD_RGB_I2C(i2c, lcd_columns, lcd_rows)
-
-    return lcd
+    return character_lcd.Character_LCD_RGB_I2C(i2c, lcd_columns, lcd_rows)
 
 
 class LcdOutput(Output):
