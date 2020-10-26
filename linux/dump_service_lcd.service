@@ -4,7 +4,7 @@ After=mnt-source.mount
 
 [Service]
 Type=idle
-ExecStart=/usr/bin/sudo /usr/bin/python3 /home/pi/dump/linux/dumper/dumper_lcd.py
+ExecStart=/usr/bin/sudo /usr/bin/python3 /home/pi/dump/linux/dumper/dumper.py lcd
 Restart=on-failure
 
 [Install]
