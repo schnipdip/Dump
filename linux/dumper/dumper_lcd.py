@@ -277,10 +277,10 @@ def restart():
     os.system('''sudo reboot -f''')
 
 def wifi_on():
-    disable_wifi = os.system('''sudo rfkill unblock wifi''')
+    enable_wifi = subprocess.call(["rfkill","unblock", "wifi"])
 
 def wifi_off():
-    enable_wifi = os.system('''sudo rfkill block wifi''')
+    disable_wifi = subprocess.call(["rfkill","block", "wifi"])
 
 
 if __name__ == "__main__":
@@ -298,8 +298,10 @@ if __name__ == "__main__":
     while True:
         #enabled/disable wifi
         if button.is_pressed:
+            #turns wifi on - switch is in toggle on state (1)
             wifi_on()
         else: 
+            #turns wifi on - switch is in toggle off state (0)
             wifi_off()
 
         lcd.clear()
