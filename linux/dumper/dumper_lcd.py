@@ -4,11 +4,12 @@ import adafruit_character_lcd.character_lcd_rgb_i2c as character_lcd
 from gpiozero import Button, Led
 import configparser
 import subprocess
+import dump_wifi
 import logger
 import pyudev
-import time
 import board
 import busio
+import time
 import usb
 import sys
 import os
@@ -42,7 +43,6 @@ def init_gpio():
     button = Button(26)
 
     return button
-
 
 def get_configparser():
     '''
@@ -299,10 +299,10 @@ if __name__ == "__main__":
         #enabled/disable wifi
         if button.is_pressed:
             #turns wifi on - switch is in toggle on state (1)
-            wifi_on()
+            dump_wifi('on')
         else: 
-            #turns wifi on - switch is in toggle off state (0)
-            wifi_off()
+            #turns wifi off - switch is in toggle off state (0)
+            dump_wifi('off')
 
         lcd.clear()
         lcd.message = "Insert USB's\nPress Select"
