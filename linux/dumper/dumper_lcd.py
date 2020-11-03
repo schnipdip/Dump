@@ -1,13 +1,15 @@
 #!/usr/bin python3
 
 import adafruit_character_lcd.character_lcd_rgb_i2c as character_lcd
+from gpiozero import Button, Led
 import configparser
 import subprocess
+import dump_wifi
 import logger
 import pyudev
-import time
 import board
 import busio
+import time
 import usb
 import sys
 import os
@@ -30,6 +32,17 @@ def init_lcd():
 
     return lcd
 
+def init_gpio():
+    '''
+        Params: button  - initializes GPIO pin
+
+        Returns: button
+    '''
+
+    #Button is located at GPIO pin 26
+    button = Button(26)
+
+    return button
 
 def get_configparser():
     '''
@@ -249,7 +262,6 @@ def shutdown():
     shutdown_command = ('''sudo shutdown -h now''')
     os.system(shutdown_command)
 
-
 def restart():
     lcd.message = "Restarting in:" 
     time.sleep(0.5)
@@ -264,9 +276,19 @@ def restart():
 
     os.system('''sudo reboot -f''')
 
+def wifi_on():
+    enable_wifi = subprocess.call(["rfkill","unblock", "wifi"])
+
+def wifi_off():
+    disable_wifi = subprocess.call(["rfkill","block", "wifi"])
+
+
 if __name__ == "__main__":
     #init lcid screen
     lcd = init_lcd()
+
+    #init gpio button 
+    button = init_gpio()
 
     #get configparser
     backup_device, input_device, dev_backup_loc, dev_input_loc, mnt_backup_loc, mnt_input_loc, dumper_loc = get_configparser()
@@ -274,6 +296,14 @@ if __name__ == "__main__":
     #message user to plug in devices
     # TODO: get message to scroll to the left without newline continuously
     while True:
+        #enabled/disable wifi
+        if button.is_pressed:
+            #turns wifi on - switch is in toggle on state (1)
+            dump_wifi('on')
+        else: 
+            #turns wifi off - switch is in toggle off state (0)
+            dump_wifi('off')
+
         lcd.clear()
         lcd.message = "Insert USB's\nPress Select"
         
