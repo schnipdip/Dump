@@ -8,4 +8,4 @@ ExecStart=/usr/bin/sudo /usr/bin/python3 /home/pi/dump/linux/dumper/dumper_lcd.p
 Restart=on-failure
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target
